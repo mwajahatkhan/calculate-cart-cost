@@ -48,19 +48,19 @@ HTML = """
       border: 1.5px solid #ff6f61;
       outline: none;
     }
-    input[type="submit"] {
+    input[type="submit"], .btn {
       background: #ff6f61;
       color: #fff;
       border: none;
       border-radius: 6px;
-      padding: 10px 28px;
-      font-size: 1rem;
+      padding: 6px 16px; /* Reduced size */
+      font-size: 0.9rem; /* Reduced font size */
       font-weight: bold;
       cursor: pointer;
       margin-top: 8px;
       transition: background 0.2s;
     }
-    input[type="submit"]:hover {
+    input[type="submit"]:hover, .btn:hover {
       background: #ff9472;
     }
     table {
@@ -93,6 +93,11 @@ HTML = """
       font-size: 1.1rem;
       color: #333;
     }
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
     @media (max-width: 700px) {
       .container {
         padding: 18px 4vw 24px 4vw;
@@ -105,7 +110,7 @@ HTML = """
 </head>
 <body>
   <div class="container">
-    <h2>🛒 Shopping Cart</h2>
+    <h2>Add items to Shopping Cart 🛒</h2>
     <form method="post" action="/">
       <div>
         <input type="text" name="name" placeholder="Item Name" required>
@@ -121,10 +126,15 @@ HTML = """
     <h2 style="margin-top:10px;">Cart Items</h2>
     <table>
       <tr>
-        <th>S.No</th><th>Item Name</th><th>Price</th><th>Quantity</th><th>Subtotal</th>
+        <th>Actions</th><th>S.No</th><th>Item Name</th><th>Price</th><th>Quantity</th><th>Subtotal</th>
       </tr>
       {% for item in cart_sorted %}
       <tr>
+        <td>
+          <form method="post" action="/remove/{{ loop.index0 }}" style="display:inline;">
+            <button class="btn" type="submit">Remove</button>
+          </form>
+        </td>
         <td>{{ loop.index }}</td>
         <td>{{ item['name'] }}</td>
         <td>₹{{ '%.2f'|format(item['price']) }}</td>
@@ -134,13 +144,18 @@ HTML = """
       {% endfor %}
       {% if cart_sorted|length == 0 %}
       <tr>
-        <td colspan="5" style="color:#888;">No items in cart.</td>
+        <td colspan="6" style="color:#888;">No items in cart.</td>
       </tr>
       {% endif %}
     </table>
     <div class="totals">
       <p><b>Total Quantity:</b> {{ total_quantity }}</p>
       <p><b>Total Amount:</b> ₹{{ '%.2f'|format(total_cost) }}</p>
+    </div>
+    <div class="actions">
+      <form method="post" action="/clear">
+        <button class="btn" type="submit">Clear Cart</button>
+      </form>
     </div>
   </div>
 </body>
@@ -164,6 +179,17 @@ def index():
         total_cost=total_cost,
         total_quantity=total_quantity
     )
+
+@app.route("/remove/<int:index>", methods=["POST"])
+def remove_item(index):
+    if 0 <= index < len(cart):
+        cart.pop(index)
+    return redirect(url_for("index"))
+
+@app.route("/clear", methods=["POST"])
+def clear_cart():
+    cart.clear()
+    return redirect(url_for("index"))
 
 if __name__ == "__main__":
     app.run(debug=True)

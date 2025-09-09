@@ -25,7 +25,7 @@ HTML = """
       padding: 32px 40px 40px 40px;
     }
     h2 {
-      color: #ff6f61;
+      color: #333;
       text-align: center;
       margin-bottom: 24px;
     }
@@ -89,7 +89,7 @@ HTML = """
     }
     .totals {
       margin-top: 24px;
-      text-align: right;
+      text-align: center;
       font-size: 1.1rem;
       color: #333;
     }
@@ -193,3 +193,4 @@ def clear_cart():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
